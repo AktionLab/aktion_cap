@@ -7,4 +7,6 @@ group :development do
   gem 'rails'
   gem 'vagrant', '~> 1.0.5'
   gem 'colored'
+  gem 'rspec'
+  gem 'highline'
 end
