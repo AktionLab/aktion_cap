@@ -62,7 +62,7 @@ set :application, '#{opts[:application]}'
 set :repository, '#{opts[:repository]}'
 set :scm, :#{opts[:scm]}
 set :deploy_via, :remote_cache
-set :deploy_to, "/var/www/\#{application}/\#{stage}"
+set(:deploy_to) {"/var/www/\#{application}/\#{stage}"}
 set :rvm_type, :user
 set :use_sudo, false
 
