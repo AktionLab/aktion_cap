@@ -68,6 +68,7 @@ describe 'capify' do
       it { should contain_content "set :application, 'dummy'" }
       it { should contain_content "set :repository, 'git@github.com:AktionLab/aktion_cap'" }
       it { should contain_content "set :scm, :git" }
+      it { should contain_content "ssh_options[:username] = 'deployer'" }
     end
 
     describe 'dummy/config/deploy/production.rb' do
@@ -87,6 +88,7 @@ describe 'capify' do
       it { should contain_content "set :stages, %w(staging production)" }
       it { should contain_content "set :application, 'custom_application'" }
       it { should contain_content "set :repository, 'git@github.com:someone/custom_application'" }
+      it { should contain_content "ssh_options[:username] = 'www-data'" }
     end
 
     describe 'dummy/config/deploy/production.rb' do

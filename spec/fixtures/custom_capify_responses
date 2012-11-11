@@ -1,6 +1,7 @@
 custom_application
 git
 git@github.com:someone/custom_application
+www-data
 staging,production
 staging.customapp.com
 2323

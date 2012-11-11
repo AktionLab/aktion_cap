@@ -19,6 +19,7 @@ module AktionCap
           q.default = `git config --local remote.origin.url`.strip
         end
       end
+      options[:ssh_user] = ask("Enter the ssh username to deploy with: ") {|q| q.default = 'deployer'}
       options[:stages] = ask("Enter the deployment stages(separate with commas): ") {|q| q.default = 'production'}.split(',').map(&:to_sym)
       options[:stages].each do |stage|
         say("\nConfigure #{stage.to_s}:")
@@ -54,7 +55,7 @@ require 'bundler/capistrano'
 require 'rvm/capistrano'
 require './config/boot'
 
-ssh_options[:username] = 'deployer'
+ssh_options[:username] = '#{opts[:ssh_user]}'
 ssh_options[:forward_agent] = true
 
 set :application, '#{opts[:application]}'
