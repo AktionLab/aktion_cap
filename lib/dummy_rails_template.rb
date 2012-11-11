@@ -4,7 +4,7 @@ run "echo > Gemfile"
 
 add_source :rubygems
 gem 'rails'
-gem 'aktion_cap', path: '..'
+gem 'aktion_cap', :path => '..'
 
 run "bundle install"
 
