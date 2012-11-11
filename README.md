@@ -1,16 +1,16 @@
 # AktionCap
 
-TODO: Write a gem description
+A metagem for use with capistrano. It includes capistrano with multistage extension, rvm integration and rake tasks to make capistrano management simpler.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-    gem 'aktion_cap'
+    gem 'aktion_cap', '~> 0.1.0'
 
 And then execute:
 
-    $ bundle
+    $ bundle install
 
 Or install it yourself as:
 
@@ -18,7 +18,10 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+### capify
+
+The `rake capify` command acts as a replacement for `capify`. When run it will prompt a series of questions about the deployment and output files
+fully configured for deployment. The prompts will attempt to supply defaults based on the application.
 
 ## Contributing
 
