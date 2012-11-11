@@ -1,5 +1,7 @@
 # AktionCap
 
+[![Build Status](https://travis-ci.org/AktionLab/aktion_cap.png)](https://travis-ci.org/AktionLab/atkion_cap)
+
 A metagem for use with capistrano. It includes capistrano with multistage extension, rvm integration and rake tasks to make capistrano management simpler.
 
 ## Installation
