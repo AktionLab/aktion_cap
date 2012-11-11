@@ -12,7 +12,6 @@ run "rm public/index.html"
 run "rm -rf doc"
 run "rm README.rdoc"
 run "rm -rf app/assets"
-run "echo \"\\n\\n\\n\\n\\n\\n\\n\" > spec/capify_responses"
 
 rakefile 'clean.rake' do
   <<-TASK
