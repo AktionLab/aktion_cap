@@ -1,0 +1,4 @@
+#!/bin/sh
+
+rake test:setup
+bundle exec rspec spec
