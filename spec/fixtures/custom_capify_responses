@@ -1,0 +1,9 @@
+custom_application
+git
+git@github.com:someone/custom_application
+staging,production
+staging.customapp.com
+2323
+www.customapp.com
+2424
+

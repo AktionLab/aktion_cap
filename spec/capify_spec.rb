@@ -1,54 +1,102 @@
 require 'spec_helper'
-require 'open3'
+require 'colored'
 
-def capify
-  `cat test.txt | rake capify`
+def string_similarity(str1, str2)
+  str1.downcase!
+  str2.downcase!
+  pairs1 = (0..str1.length-2).map{|i| str1[i,2]}.reject{|pair| pair.include? " "}
+  pairs2 = (0..str2.length-2).map{|i| str2[i,2]}.reject{|pair| pair.include? " "}
+  union = pairs1.size + pairs2.size
+  intersection = 0
+  pairs1.each do |p1|
+    0.upto(pairs2.size-1) do |i|
+      if p1 === pairs2[i]
+        intersection += 1
+        pairs2.slice!(i)
+        break
+      end
+    end
+  end
+  (2.0 * intersection) / union
+end
+
+RSpec::Matchers.define :contain_content do |expected_line|
+  match do |file|
+    file = File.open(file) if file.is_a? String
+    file.lines.any? {|l| l == "#{expected_line}\n"}
+  end
+
+  failure_message_for_should do |file|
+    file = File.open(file) if file.is_a? String
+    lines = file.lines.to_a
+    best_match = [string_similarity(expected_line, lines.first)]
+    lines[1..-1].each do |l|
+      score = string_similarity(expected_line, l)
+      best_match = [score,l] if score > best_match[0]
+    end
+    "Expected:\n#{expected_line}\nClosest match:\n#{best_match[1].yellow}\n#{lines.map(&:blue).join('')}"
+  end
+end
+
+RSpec::Matchers.define :be_a_file_that_exists do
+  match do |filename|
+    File.exists?(filename)
+  end
+
+  failure_message_for_should do |filename|
+    "expected #{filename} to exist"
+  end
+
+  failure_message_for_should_not do |filename|
+    "expected #{filename} to not exist"
+  end
 end
 
 describe 'capify' do
   context 'default' do
-    before(:all) do
-      `cd dummy && cat test.txt | rake cdean capify`
+    before(:each) do
+      `cd dummy && cat ../spec/fixtures/default_capify_responses | rake clean capify`
     end
 
-    it "create a Capfile" do
-      File.exists?('dummy/Capfile').should be_true
+    describe 'dummy/Capfile' do
+      it { should be_a_file_that_exists }
     end
 
-    context "config/deploy.rb" do
-      subject { File.open('dummy/config/deploy.rb') }
-
-      it 'should exist' do
-        File.exists?(subject).should be_true
-      end
-
-      it 'should set the application name to the directory name by default' do
-        subject.lines.any? {|l| l == "set :application, 'dummy'\n"}.should be_true
-      end
-
-      it 'should set the repository location to the git remote origin' do
-        subject.lines.any? {|l| l == "set :repository, 'git@github.com:AktionLab/aktion_cap'\n"}.should be_true
-      end
-
-      it 'should set the scm to git by default' do
-        subject.lines.any? {|l| l == "set :scm, :git\n"}.should be_true
-      end
+    describe "dummy/config/deploy.rb" do
+      it { should be_a_file_that_exists }
+      it { should contain_content "set :application, 'dummy'" }
+      it { should contain_content "set :repository, 'git@github.com:AktionLab/aktion_cap'" }
+      it { should contain_content "set :scm, :git" }
     end
 
-    context 'config/deploy/production.rb' do
-      subject { File.open('dummy/config/deploy/production.rb')}
+    describe 'dummy/config/deploy/production.rb' do
+      it { should be_a_file_that_exists }
+      it { should contain_content "set :port, 2222" }
+      it { should contain_content "set :server_hostname, 'localhost'" }
+    end
+  end
 
-      it 'should exist' do
-        File.exists?(subject).should be_true
-      end
+  context 'custom' do
+    before(:each) do
+      `cd dummy && cat ../spec/fixtures/custom_capify_responses | rake clean capify`
+    end
 
-      it 'should set the port' do
-        subject.lines.any? {|l| l == "set :port, 2222\n"}.should be_true
-      end
+    describe 'dummy/config/deploy.rb' do
+      it { should be_a_file_that_exists }
+      it { should contain_content "set :application, 'custom_application'" }
+      it { should contain_content "set :repository, 'git@github.com:someone/custom_application'" }
+    end
 
-      it 'should set the hostname' do
-        subject.lines.any? {|l| l == "set :server_hostname, 'localhost'\n"}.should be_true
-      end
+    describe 'dummy/config/deploy/production.rb' do
+      it { should be_a_file_that_exists }
+      it { should contain_content "set :port, 2424" }
+      it { should contain_content "set :server_hostname, 'www.customapp.com'" }
+    end
+
+    describe 'dummy/config/deploy/staging.rb' do
+      it { should be_a_file_that_exists }
+      it { should contain_content "set :port, 2323" }
+      it { should contain_content "set :server_hostname, 'staging.customapp.com'" }
     end
   end
 end
