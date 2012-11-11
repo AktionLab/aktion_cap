@@ -29,7 +29,7 @@ RSpec::Matchers.define :contain_content do |expected_line|
   failure_message_for_should do |file|
     file = File.open(file) if file.is_a? String
     lines = file.lines.to_a
-    best_match = [string_similarity(expected_line, lines.first)]
+    best_match = [string_similarity(expected_line, lines.first), lines.first]
     lines[1..-1].each do |l|
       score = string_similarity(expected_line, l)
       best_match = [score,l] if score > best_match[0]
@@ -64,6 +64,7 @@ describe 'capify' do
 
     describe "dummy/config/deploy.rb" do
       it { should be_a_file_that_exists }
+      it { should contain_content "set :stages, %w(production)" }
       it { should contain_content "set :application, 'dummy'" }
       it { should contain_content "set :repository, 'git@github.com:AktionLab/aktion_cap'" }
       it { should contain_content "set :scm, :git" }
@@ -83,6 +84,7 @@ describe 'capify' do
 
     describe 'dummy/config/deploy.rb' do
       it { should be_a_file_that_exists }
+      it { should contain_content "set :stages, %w(staging production)" }
       it { should contain_content "set :application, 'custom_application'" }
       it { should contain_content "set :repository, 'git@github.com:someone/custom_application'" }
     end

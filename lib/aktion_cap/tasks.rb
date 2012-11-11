@@ -46,7 +46,7 @@ load 'config/deploy'
     def write_config_deploy(opts)
       File.open('config/deploy.rb', 'w') do |file|
         file << <<-FILE
-set :stages %w(production staging)
+set :stages, %w(#{opts[:stages].map(&:to_s).join(' ')})
 
 require 'capistrano/ext/multistage'
 require 'bundler/capistrano'
