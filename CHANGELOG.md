@@ -1,3 +1,9 @@
+# v0.1.1
+
+* Remove harded stages in config/deploy.rb
+* Improvements to interactive configuration
+* Make ssh user configurable, defaults to deployer
+
 # v0.1.0
 
 Released *rake capify* task. Provides an interactive version of capify.
