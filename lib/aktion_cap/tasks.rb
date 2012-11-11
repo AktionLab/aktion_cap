@@ -34,23 +34,18 @@ module AktionCap
       options
     end
 
-    def install
-      desc 'capify'
-      task 'capify' do
-        options = prompts_for_capify
-
-        capfile = File.join(Dir.pwd, 'Capfile')
-        File.open(capfile, 'w') do |f|
-          f << <<FILE
+    def write_capfile
+      File.open('Capfile', 'w') do |file|
+        file << <<-FILE
 load 'deploy'
 load 'config/deploy'
-FILE
-        end
+        FILE
+      end
+    end
 
-
-        config_deploy = File.join(Dir.pwd, 'config', 'deploy.rb')
-        File.open(config_deploy, 'w') do |f|
-          f << <<FILE
+    def write_config_deploy(opts)
+      File.open('config/deploy.rb', 'w') do |file|
+        file << <<-FILE
 set :stages %w(production staging)
 
 require 'capistrano/ext/multistage'
@@ -61,9 +56,9 @@ require './config/boot'
 ssh_options[:username] = 'deployer'
 ssh_options[:forward_agent] = true
 
-set :application, '#{options[:application]}'
-set :repository, '#{options[:repository]}'
-set :scm, :#{options[:scm]}
+set :application, '#{opts[:application]}'
+set :repository, '#{opts[:repository]}'
+set :scm, :#{opts[:scm]}
 set :deploy_via, :remote_cache
 set :deploy_to, "/var/www/\#{application}/\#{stage}"
 set :rvm_type, :user
@@ -75,24 +70,30 @@ set :tasks_for_rake, %w(db:migrate)
 after  'deploy:update_code',    'deploy:create_shared_symlinks'
 before 'deploy:create_symlink', 'deploy:run_rake_tasks'
 after  'deploy',                'deploy:cleanup'
-FILE
-        end
+        FILE
+      end
+    end
 
-        deploy_dir = File.join(Dir.pwd, 'config', 'deploy')
-        Dir.mkdir(deploy_dir) unless Dir.exists?(deploy_dir)
-
-        options[:stages].each do |stage|
-          deploy_file = File.join(Dir.pwd, 'config', 'deploy', "#{stage.to_s}.rb")
-          File.open(deploy_file, 'w') do |f|
-            f << <<FILE
-set :port, #{options[stage][:server_port]}
-set :server_hostname, '#{options[stage][:server_hostname]}'
+    def write_stage_config_deploy(stage, opts)
+      File.open("config/deploy/#{stage.to_s}.rb", 'w') do |file|
+        file << <<-FILE
+set :port, #{opts[stage][:server_port]}
+set :server_hostname, '#{opts[stage][:server_hostname]}'
 role :app, server_hostname
 role :web, server_hostname
 role :db,  server_hostname, primary: true
-FILE
-          end
-        end
+        FILE
+      end
+    end
+
+    def install
+      desc 'capify'
+      task 'capify' do
+        opts = prompts_for_capify
+        Dir.mkdir('config/deploy') unless Dir.exists?('config/deploy')
+        write_capfile
+        write_config_deploy opts
+        opts[:stages].each{|stage| write_stage_config_deploy(stage, opts)}
       end
     end
   end
