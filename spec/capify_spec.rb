@@ -66,7 +66,7 @@ describe 'capify' do
       it { should be_a_file_that_exists }
       it { should contain_content "set :stages, %w(production)" }
       it { should contain_content "set :application, 'dummy'" }
-      it { should contain_content "set :repository, 'git@github.com:AktionLab/aktion_cap'" }
+      it { should contain_content "set :repository, '#{`git config --local remote.origin.url`.strip}'" }
       it { should contain_content "set :scm, :git" }
       it { should contain_content "ssh_options[:username] = 'deployer'" }
     end
