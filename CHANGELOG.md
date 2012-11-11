@@ -1,3 +1,7 @@
+# v0.1.2
+
+* Fix a bug with stage being used outside of the cap instance
+
 # v0.1.1
 
 * Remove harded stages in config/deploy.rb
