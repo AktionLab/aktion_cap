@@ -21,9 +21,10 @@ module AktionCap
       end
       options[:stages] = ask("Enter the deployment stages(separate with commas): ") {|q| q.default = 'production'}.split(',').map(&:to_sym)
       options[:stages].each do |stage|
+        say("\nConfigure #{stage.to_s}:")
         options[stage] = {}
-        options[stage][:server_hostname] = ask("Enter the server hostname or IP: ") {|q| q.default = 'localhost'}
-        options[stage][:server_port] = ask("Enter the ssh port to connect to: ", Integer) do |q|
+        options[stage][:server_hostname] = ask("  Enter the server hostname or IP: ") {|q| q.default = 'localhost'}
+        options[stage][:server_port] = ask("  Enter the ssh port to connect to: ", Integer) do |q|
           if options[stage][:server_hostname] == 'localhost'
             q.default = '2222'
           else
