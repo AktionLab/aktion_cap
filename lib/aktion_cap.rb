@@ -1,5 +1,5 @@
 require "aktion_cap/version"
 
 module AktionCap
-  # Your code goes here...
+  require 'aktion_cap/railtie' if defined? Rails
 end
