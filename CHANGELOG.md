@@ -1,3 +1,8 @@
+# v0.1.3
+
+* Add recipes for nginx, unicorn and database
+* capify task will write nginx configs for each stage
+
 # v0.1.2
 
 * Fix a bug with stage being used outside of the cap instance
