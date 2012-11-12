@@ -54,6 +54,7 @@ require 'capistrano/ext/multistage'
 require 'bundler/capistrano'
 require 'rvm/capistrano'
 require './config/boot'
+require 'aktion_cap/recipes/base'
 
 ssh_options[:username] = '#{opts[:ssh_user]}'
 ssh_options[:forward_agent] = true
