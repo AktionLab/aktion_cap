@@ -15,6 +15,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = AktionCap::VERSION
 
+  gem.add_dependency 'activesupport', '~> 3.2.8'
   gem.add_dependency 'capistrano', '~> 2.13.4'
   gem.add_dependency 'capistrano-ext', '~> 1.2.1'
   gem.add_dependency 'rvm-capistrano', '~> 1.2.7'
