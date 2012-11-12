@@ -69,12 +69,20 @@ describe 'capify' do
       it { should contain_content "set :repository, '#{`git config --local remote.origin.url`.strip}'" }
       it { should contain_content "set :scm, :git" }
       it { should contain_content "ssh_options[:username] = 'deployer'" }
+      it { should contain_content "require 'aktion_cap/recipe/base'" }
+      it { should contain_content "require 'aktion_cap/recipe/database'" }
+      it { should contain_content "require 'aktion_cap/recipe/nginx'" }
+      it { should contain_content "require 'aktion_cap/recipe/unicorn'" }
     end
 
     describe 'dummy/config/deploy/production.rb' do
       it { should be_a_file_that_exists }
       it { should contain_content "set :port, 2222" }
       it { should contain_content "set :server_hostname, 'localhost'" }
+    end
+
+    describe 'dummy/config/nginx_production.conf' do
+      it { should be_a_file_that_exists }
     end
   end
 
@@ -101,6 +109,14 @@ describe 'capify' do
       it { should be_a_file_that_exists }
       it { should contain_content "set :port, 2323" }
       it { should contain_content "set :server_hostname, 'staging.customapp.com'" }
+    end
+
+    describe 'dummy/config/nginx_production.conf' do
+      it { should be_a_file_that_exists }
+    end
+
+    describe 'dummy/config/nginx_staging.conf' do
+      it { should be_a_file_that_exists }
     end
   end
 end

@@ -54,7 +54,10 @@ require 'capistrano/ext/multistage'
 require 'bundler/capistrano'
 require 'rvm/capistrano'
 require './config/boot'
-require 'aktion_cap/recipes/base'
+require 'aktion_cap/recipe/base'
+require 'aktion_cap/recipe/database'
+require 'aktion_cap/recipe/nginx'
+require 'aktion_cap/recipe/unicorn'
 
 ssh_options[:username] = '#{opts[:ssh_user]}'
 ssh_options[:forward_agent] = true
@@ -72,6 +75,7 @@ set :tasks_for_rake, %w(db:migrate)
 
 after  'deploy:update_code',    'deploy:create_shared_symlinks'
 before 'deploy:create_symlink', 'deploy:run_rake_tasks'
+before 'deploy:restart',        'nginx:config'
 after  'deploy',                'deploy:cleanup'
         FILE
       end
@@ -89,6 +93,47 @@ role :db,  server_hostname, primary: true
       end
     end
 
+    def write_nginx(stage, opts)
+      File.open("config/nginx_#{stage.to_s}.conf", 'w') do |file|
+        file << <<-FILE
+upstream #{opts[:application]}_#{stage.to_s} {
+  server unix:/tmp/unicorn-#{opts[:application]}_#{stage.to_s}.sock fail_timeout=0;
+}
+
+server {
+  listen 80;
+
+  server_name opts[stage][:server_hostname];
+
+  root /var/www/#{opts[:application]}/#{stage.to_s}/current/public;
+  access_log /var/log/nginx/#{opts[:application]}_#{stage.to_s}-access.log;
+  error_log /var/log/nginx/#{opts[:application]}_#{stage.to_s}-error.log;
+
+  location ~ ^/assets/ {
+    gzip_static on;
+    expires max;
+    add_header Cache-Control public;
+  }
+
+  location {
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_redirect off;
+
+    if (!-f $request_filename) {
+      proxy_pass http://#{opts[:application]}_#{stage.to_s};
+      break;
+    }
+  }
+
+  error_page 404 /404.html;
+  error_page 500 502 503 504 /500.html;
+}
+        FILE
+      end
+    end
+
     def install
       desc 'capify'
       task 'capify' do
@@ -96,7 +141,10 @@ role :db,  server_hostname, primary: true
         Dir.mkdir('config/deploy') unless Dir.exists?('config/deploy')
         write_capfile
         write_config_deploy opts
-        opts[:stages].each{|stage| write_stage_config_deploy(stage, opts)}
+        opts[:stages].each do |stage|
+          write_stage_config_deploy(stage, opts)
+          write_nginx(stage, opts)
+        end
       end
     end
   end
