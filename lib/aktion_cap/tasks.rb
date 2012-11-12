@@ -103,7 +103,7 @@ upstream #{opts[:application]}_#{stage.to_s} {
 server {
   listen 80;
 
-  server_name opts[stage][:server_hostname];
+  server_name #{opts[stage][:server_hostname]};
 
   root /var/www/#{opts[:application]}/#{stage.to_s}/current/public;
   access_log /var/log/nginx/#{opts[:application]}_#{stage.to_s}-access.log;
